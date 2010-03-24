@@ -1,0 +1,8 @@
+The long awaited-replacement for the Java Web Start-based cell phone simulator.
+
+This application teaches high school students about the use of networks in biology
+by using the metaphor of a cell phone network. You can perturb the network by removing
+various edges and then see how it affects overall communication.
+
+More information:
+http://baliga.systemsbiology.net/drupal/education/?q=content/new-cellphone-simulation
