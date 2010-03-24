@@ -82,7 +82,7 @@ jQuery(document).ready(function() {
         getCarriers();
     }); // end of vis.ready function
     
-    jQuery("#knockout_selected").click(function(){
+    jQuery("#knockout_selected_special").click(function(){
         var selected = vis.selected("nodes");
         //log("num selected nodes: " + selected.length);
         setIncidentEdgesVisibility(selected, false);
@@ -94,7 +94,7 @@ jQuery(document).ready(function() {
        });
     });
     
-    jQuery("#reactivate_selected").click(function(){
+    jQuery("#reactivate_selected_special").click(function(){
         var selected = vis.selected("nodes");
         //log("num selected nodes: " + selected.length);
         setIncidentEdgesVisibility(selected, true);
