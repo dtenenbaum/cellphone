@@ -72,12 +72,6 @@ jQuery(document).ready(function() {
         		function(){ jQuery(this).removeClass('ui-state-focus').addClass('ui-state-default'); }
         	);
     
-    jQuery("#hierarchy").menu(
-        {
-            content: jQuery('#hierarchy').next().html(),
-            flyOut: true
-        }
-    );
     
     jQuery.get('cellphone.graphml', function(data) {
         // draw
@@ -107,12 +101,19 @@ jQuery(document).ready(function() {
         
     });
     
+    jQuery('ul.sf-menu').superfish();
+	
+	jQuery(".menuItem").click(function(){
+	    //alert("haha");
+	    log("menu item clicked: " + jQuery(this).attr("id"))
+		jQuery('ul.sf-menu').superfish();
+	})
+	
+    
+    
 }); // end of jQuery document ready function
 
 
-var runMenuItem = function(item) {
-    log("clicked menu item: " + item);
-}
 
 var incident = function(node, edge) {
     var nodeName = node.data["id"];

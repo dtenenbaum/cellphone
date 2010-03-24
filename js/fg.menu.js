@@ -244,9 +244,10 @@ function Menu(caller, options){
 	this.chooseItem = function(item){
 		menu.kill();
 		// edit this for your own custom function/callback:
-		jQuery('#menuSelection').text(jQuery(item).text());	
-		log ("item = " + jQuery(item));
-		runMenuItem(jQuery(item).attr("id"));
+		//jQuery('#menuSelection').text(jQuery(item).text());	
+		log ("item id = " + item.attr("id"));
+		
+		runMenuItem(jQuery(item).text());
 		// location.href = jQuery(item).attr('href');
 	};
 };
@@ -301,8 +302,12 @@ Menu.prototype.flyout = function(container, options) {
 		);	
 	});
 	
-	container.find('a').click(function(){
-		menu.chooseItem(this);
+	container.find('a').click(function(ho){
+	    log("hoid = " + jQuery(ho).attr("href"));
+	    log("id = " + jQuery(this).attr("href"));
+	    log("class = " + jQuery(this).hasClass("menu_item"));
+	    log("hclass = " + jQuery(ho).hasClass("menu_item"));
+		menu.chooseItem(jQuery(this));
 		return false;
 	});
 };
