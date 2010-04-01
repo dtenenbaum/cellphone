@@ -25,6 +25,7 @@
         
         <script type="text/javascript" src="js/superfish.js"></script>
         
+        <script type="text/javascript" src="js/jquery-ui-min.js"></script>
         
         
 
@@ -156,7 +157,21 @@
             Loading...
         </div>
         <br/>
-        <div id="event_display" bgcolor="#1475E3">
+        <div id="event_display" bgcolor="#1475E3" height="150">
+        </div>
+        
+        <div id="shortest_path_dialog">
+            <form id="sp_form">
+                <select id="sp_start_node" class="node_list"></select> Start Node<br/>
+                <select id="sp_end_node" class="node_list"></select> End Node<br/>
+                <select id="sp_delay">
+                    <option>500</option>
+                    <option>1000</option>
+                    <option>1500</option>
+                    <option>2000</option>
+                </select> Delay in ms.<br/>
+                <textarea id="sp_path_display" cols="40" rows="3"></textarea>
+            </form>
         </div>
      
     </body>
