@@ -40,7 +40,13 @@ var carriersHash = {"att": "AT&T", "cellularone": "CellularOne", "sprint": "Spri
 
 var vis;
 
+var stats = {};
+
 var spDialog;
+var ptDialog;
+var statsDialog;
+
+var delay = 500;
 
 var nodeMapper = {
     attrName: "hasbeencalled",
@@ -58,6 +64,7 @@ var edgeMapper = {
     ]
 };
 
+var bypass = {nodes: {}, edges: {}};
 
 
 var visual_style = {
@@ -95,6 +102,23 @@ jQuery(document).ready(function() {
     });
     
     
+    ptDialog = jQuery("#phone_tree_dialog").dialog({autoOpen: false, title: 'Phone Tree',
+        width: 500,
+        position: 'bottom',
+        buttons : {
+            'Close': function(){ jQuery(this).dialog('close')},
+            'Clear': function(){ jQuery("#pt_path_display").val("")},
+            'Finish': false,
+            'Step': false,
+            'Start': startPhoneTree
+        }});
+        
+        
+    statsDialog = jQuery("#stats_dialog").dialog({autoOpen :false, title: 'Statistics',
+        buttons: {
+            'Close': function(){ jQuery(this).dialog('close')}
+        }});
+    
     var options = {
         // where you have the Cytoscape Web SWF
         swfPath: "swf/CytoscapeWeb",
@@ -113,7 +137,7 @@ jQuery(document).ready(function() {
     vis.addListener("mouseover", "nodes", gotNodeEvent);
     vis.addListener("mouseout", "nodes", clearLegend);
     vis.addListener("mouseout", "edges", clearLegend);
-    vis.addListener("select", "nodes", setupSPDialog);
+    vis.addListener("select", "nodes", setupDialogs);
     
     
     jQuery("#politics").click(function(){
@@ -132,6 +156,10 @@ jQuery(document).ready(function() {
        log("menu item clicked") ;
     });
     
+    jQuery("#phone_tree").click(function(){
+       ptDialog.dialog('open');
+    });
+    
     jQuery('.fg-button').hover(
         		function(){ jQuery(this).removeClass('ui-state-default').addClass('ui-state-focus'); },
         		function(){ jQuery(this).removeClass('ui-state-focus').addClass('ui-state-default'); }
@@ -146,7 +174,7 @@ jQuery(document).ready(function() {
     
     vis.ready(function(){
         getCarriers();
-        setupSPDialog();
+        setupDialogs();
     }); // end of vis.ready function
     
     jQuery("#knockout_selected_special").click(function(){
@@ -159,6 +187,9 @@ jQuery(document).ready(function() {
        vis.filter("edges", function(edge) {
            return true;
        });
+       visited = {};
+       bypass = {nodes: {}, edges: {}};
+       vis.visualStyleBypass(bypass);
     });
     
     jQuery("#reactivate_selected_special").click(function(){
@@ -398,7 +429,7 @@ var setIncidentEdgesVisibility = function(nodes, visible) {
 }
 
 
-var setupSPDialog = function() {
+var setupDialogs = function() {
     var selectedId = "nothing";
     if (vis.selected("nodes").length == 1) {
         selectedId = "" + vis.selected("nodes")[0].data['id'];
@@ -424,6 +455,7 @@ var setupSPDialog = function() {
 
     }
     
+    jQuery("#pt_start_node").html(strStart);
     jQuery("#sp_start_node").html(strStart);
     jQuery("#sp_end_node").html(strEnd);
 }
@@ -628,22 +660,50 @@ var myfunc = function(source, target) {
 }
 
 
-var bfs = function(start,func) {
-    var fn = getRealFirstNeighbors([start]);
-    //log("# neighbors = " + fn['neighbors'].length);
-    for (var i = 0; i < fn['neighbors'].length; i++) {
-        var targetNode = fn['neighbors'][i];
-        var target = fn['neighbors'][i].data['id'];
-        if (visited[start + ">" + target] == 1) {
-            break;
+var visit = function(start) {
+    
+    var func = function() {
+      setTimeout(function(){
+          var fn = getRealFirstNeighbors([start]);
+          for (var i = 0; i < fn['neighbors'].length; i++) {
+              var targetNode = fn['neighbors'][i];
+              var target = fn['neighbors'][i].data['id'];
+              if (visited[start + ">" + target] == 1) {
+                  break;
+              }
+              //log(start + " called " + target);
+
+
+
+              var status = jQuery("#pt_path_display").val();
+              status +=  start + " called " + target + "\n";
+              jQuery("#pt_path_display").val(status);
+              visited[start + ">" + target] = 1;
+              targetNode.data['hasbeencalled'] = "true";
+              bypass.nodes[targetNode.data.id] = {color: "#ff0000"};
+              vis.visualStyleBypass(bypass);
+
+
+              visit(target);
+          }
+
+
+
+          
+      }, delay);  
+    };
+    
+    func();
+    
+}
+
+var getNodeByName = function(name) {
+    var nodes = vis.nodes();
+    for (var i = 0; i < nodes.length; i++) {
+        var node = nodes[i];
+        if (node.data['id'] == name) {
+            return node;
         }
-        log(start + " called " + target);
-        visited[start + ">" + target] = 1;
-//        func(start, target);
-        log("before: " + targetNode.data['hasbeencalled']);
-        targetNode.data['hasbeencalled'] = "true";
-        log("after: " + targetNode.data['hasbeencalled']);
-        bfs(target);
     }
 }
 
@@ -711,4 +771,9 @@ var getNodeWihSmallestDist = function(q, dist) {
     }
     log("oops! no nodes have 0 dist, i = " + i);
     return (q[0]);
+}
+
+var startPhoneTree = function() {
+    visit(jQuery("#pt_start_node").val());
+    statsDialog.dialog('open');
 }

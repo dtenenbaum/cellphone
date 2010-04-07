@@ -175,6 +175,34 @@
                 <textarea id="sp_path_display" cols="40" rows="3"></textarea>
             </form>
         </div>
+        
+        <div id="phone_tree_dialog">
+            <form id="pt_form">
+                <select id="pt_start_node" class="node_list"></select> Start Node<br/>
+                <select id="pt_delay">
+                    <option>500</option>
+                    <option>1000</option>
+                    <option>1500</option>
+                    <option>2000</option>
+                </select> Delay in ms.<br/>
+                <input type="checkbox" id="single_step_mode"/> Single-step mode?<br/>
+                <textarea id="pt_path_display" cols="40" rows="6"></textarea>
+            </form>
+        </div>
+        
+        <div id="stats_dialog">
+            <table border="1">
+                <tr>
+                    <th>Calls Made</th>
+                    <th>Calls Received</th>
+                </tr>
+                
+            </table>
+            Total calls made: <span id="total_calls_made"></span><br/>
+            Total calls received: <span id="total_calls_received"></span><br/>
+            Total phones called: <span id="total_phones_called"></span><br/>
+            Total phones not called: <span id="total_phones_not_called"></span>
+        </div>
      
     </body>
     

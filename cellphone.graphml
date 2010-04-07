@@ -14,7 +14,7 @@
       <data key="camera">false</data>
       <data key="email">true</data>
       <data key="visible">true</data>
-      <data key="hasbeencalled">true</data>
+      <data key="hasbeencalled">false</data>
       <data key="label">7B</data>
       <data key="carrier">T-Mobile</data>
       <data key="roaming">true</data>
