@@ -40,13 +40,16 @@ var carriersHash = {"att": "AT&T", "cellularone": "CellularOne", "sprint": "Spri
 
 var vis;
 
-var stats = {};
+var stats;
 
 var spDialog;
 var ptDialog;
 var statsDialog;
 
-var delay = 500;
+var numIters = 0;
+var numPreIters = 0;
+
+var delay = 25;
 
 var nodeMapper = {
     attrName: "hasbeencalled",
@@ -83,6 +86,13 @@ var visual_style = {
 
 var bfspath = [];
 var visited = {};
+var lastEdgeVisited;
+
+
+var preVisited = {};
+var lastEdgePrevisited;
+
+
 
 jQuery(document).ready(function() {
     log("ho there");
@@ -190,6 +200,7 @@ jQuery(document).ready(function() {
        visited = {};
        bypass = {nodes: {}, edges: {}};
        vis.visualStyleBypass(bypass);
+       //todo - set hasbeencalled to false on all edges and nodes - or do we care?
     });
     
     jQuery("#reactivate_selected_special").click(function(){
@@ -202,7 +213,6 @@ jQuery(document).ready(function() {
     jQuery('ul.sf-menu').superfish();
 	
 	jQuery(".menuItem").click(function(){
-	    //alert("haha");
 	    var menuItem = jQuery(this).attr("id");
 	    log("menu item clicked: " + jQuery(this).attr("id"))
 		jQuery('ul.sf-menu').superfish();
@@ -659,31 +669,62 @@ var myfunc = function(source, target) {
     log ("source = " + source + ", target = " + target);
 }
 
+var getPhoneTreeDelay = function() {
+    var delayStr = jQuery("#pt_delay").val();
+    var i = parseInt(delayStr);
+    return i;
+}
+
+
+
+var preVisit = function(start) {
+    numPreIters++;
+    var fn = getRealFirstNeighbors([start]);
+    for (var i = 0; i < fn['neighbors'].length; i++) {
+        var target = fn['neighbors'][i].data['id'];
+        var key = start + ">"  + target;
+        lastEdgePrevisited = key;
+        var value = preVisited[key];
+        if (value == undefined) value = 0;
+        preVisited[key] = ++value;
+        if (preVisited[key] > 1) {
+            break;
+        }
+        //log(start + " called " + target);
+        preVisit(target);
+    }
+}
 
 var visit = function(start) {
     
     var func = function() {
       setTimeout(function(){
+          numIters++;
           var fn = getRealFirstNeighbors([start]);
           for (var i = 0; i < fn['neighbors'].length; i++) {
-              var targetNode = fn['neighbors'][i];
+              //log("previsit lala: last edge is: " + lastEdgePrevisited + " and count is " + preVisited[lastEdgePrevisited]);
+
               var target = fn['neighbors'][i].data['id'];
-              if (visited[start + ">" + target] == 1) {
+              var key = start + ">" + target;
+              lastEdgeVisited = key;
+              var value = visited[key];
+              if (value == undefined) value = 0;
+              visited[key] = ++value;
+              if (visited[key] > 1) {
                   break;
               }
-              //log(start + " called " + target);
+
+              ++stats['totalCallsMade'];
+              ++stats['totalCallsReceived'];
 
 
 
               var status = jQuery("#pt_path_display").val();
               status +=  start + " called " + target + "\n";
-              jQuery("#pt_path_display").val(status);
-              visited[start + ">" + target] = 1;
-              targetNode.data['hasbeencalled'] = "true";
-              bypass.nodes[targetNode.data.id] = {color: "#ff0000"};
+              jQuery("#pt_path_display").val(status); //todo - can we keep the bottom of the textarea in view?
+              bypass.nodes[target] = {color: "#ff0000"};
               vis.visualStyleBypass(bypass);
-
-
+              
               visit(target);
           }
 
@@ -774,6 +815,49 @@ var getNodeWihSmallestDist = function(q, dist) {
 }
 
 var startPhoneTree = function() {
+    resetStats();
+    numIters = 0;
+    numPreIters = 0;
+    delay = getPhoneTreeDelay();
+    var i = 0;
+    log("delay = " + delay);
+    preVisit(jQuery("#pt_start_node").val());
+    log("end of previsit, last edge is: " + lastEdgePrevisited + " and count is " + preVisited[lastEdgePrevisited] + ", iters = " + numPreIters);
+    
+    
     visit(jQuery("#pt_start_node").val());
-    statsDialog.dialog('open');
+    var intervalId = setInterval(function(){
+        
+        log("lev = " + lastEdgeVisited + " , lepv = " + lastEdgePrevisited + ", v = " +  visited[lastEdgeVisited] + ", pv = " + preVisited[lastEdgePrevisited] + ", iters = " + numIters);
+        if (numPreIters == numIters) {
+            log("visiting hours are over");
+            clearInterval(intervalId);
+            //fill stats
+            fillStats();
+            statsDialog.dialog('open');
+        } 
+    },25);
+}
+
+var fillStats = function() {
+    stats['totalPhonesCalled'] = count(visited);
+    //stats['totalPhonesNotCalled'] = (vis.nodes().length - count(visited));
+    
+    jQuery("#total_calls_made").html(stats['totalCallsMade']);
+    jQuery("#total_calls_received").html(stats['totalCallsReceived']);
+    jQuery("#total_phones_called").html(stats['totalPhonesCalled']);
+    jQuery("#total_phones_not_called").html(stats['totalPhonesNotCalled']);
+    
+    
+}
+
+var resetStats = function() {
+    stats = {
+        callsMade: {},
+        callsReceived: {},
+        totalCallsMade: 0,
+        totalCallsReceived: 0,
+        totalPhonesCalled: 0,
+        totalPhonesNotcalled: 0
+    };    
 }
