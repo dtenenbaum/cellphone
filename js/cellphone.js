@@ -42,6 +42,41 @@ var vis;
 
 var spDialog;
 
+var nodeMapper = {
+    attrName: "hasbeencalled",
+    entries: [
+        {attrValue: "false", value: "#f5f5f5"},
+        {attrValue: "true", value: "#ff0000"}
+    ]
+};
+
+var edgeMapper = {
+    attrName: "hasbeencalled",
+    entries: [
+        {attrValue: "false", value: "#999999"},
+        {attrValue: "true", value: "#ff0000"}
+    ]
+};
+
+
+
+var visual_style = {
+        nodes: {
+            color: {
+                discreteMapper: nodeMapper
+            }
+        },
+        edges: {
+            color : {
+                discreteMapper: edgeMapper
+            }
+        }
+};
+
+
+var bfspath = [];
+var visited = {};
+
 jQuery(document).ready(function() {
     log("ho there");
     var div_id = "cytoscapeweb";
@@ -105,7 +140,8 @@ jQuery(document).ready(function() {
     
     jQuery.get('cellphone.graphml', function(data) {
         // draw
-       vis.draw({network: data})
+       vis.draw({network: data, visualStyle: visual_style, nodeTooltipsEnabled: true, edgeTooltipsEnabled: true})
+       //vis.visualStyle(visual_style);
     });
     
     vis.ready(function(){
@@ -230,7 +266,7 @@ var prepareTofindShortestPath = function() {
 
 var findShortestPath = function(start, end) {
     var shortestPaths = [];
-    fn = getRealFirstNeighbors([start]);
+    var fn = getRealFirstNeighbors([start]);
     for (i = 0; i < fn.edges.length; i++) {
         var edge = fn.edges[i];
         log("edge source = " + edge.data['source'] + ", target = " + edge.data['target']);
@@ -263,6 +299,7 @@ var getRealFirstNeighbors = function(nodeIds) {
     
     
     
+    
     for (i = 0; i < nodeIds.length; i++) {
         // assume for now that each node id is a string
         startNodes[nodeIds[i]] = 1;
@@ -270,7 +307,8 @@ var getRealFirstNeighbors = function(nodeIds) {
 
     ret['rootNodes'] = nodeIds;
     
-    fn = vis.firstNeighbors(nodeIds);
+    
+    var fn = vis.firstNeighbors(nodeIds);
     
     for (i = 0; i < fn.neighbors.length; i++) {
         var node = fn.neighbors[i];
@@ -498,4 +536,179 @@ var print2DArray = function(array)
 		out += "\n";
 	}
 	return out;
+}
+
+
+var getNetwork = function() {
+    var nodes = {};
+    var allNodes = vis.nodes();
+    for (var i = 0; i < allNodes.length; i++) {
+        var id = allNodes[i].data['id'];
+        var nabes = getRealFirstNeighbors([id]);
+        if (nabes['neighbors'].length > 0) {
+            nodes[id] = [];
+            for (var j = 0; j < nabes['neighbors'].length; j++) {
+                nodes[id].push(nabes['neighbors'][j].data['id']);
+            }
+        }
+    }
+    return nodes;
+}
+
+var dijkstra = function(graph, source) {
+    
+    var dist = {};
+    var previous = {};
+    var q = [];
+    for (var node in graph) {
+        dist[node] = Infinity;
+        if (node == source) {
+            dist[node] = 0;
+        }
+        previous[node] = [];
+        q.push(node);
+    }
+    
+    while (q.length > 0) {
+        var u = getNodeWihSmallestDist(q, dist);
+        log("u = " + u);
+        if (dist[u] == Infinity) {
+            break;
+        }
+        q = removeItemFromArray(q,u);
+        log("2");
+        for (var i = 0; i < graph[u].length; i++) {
+            log("3");
+            var v = graph[u][i];
+            log("v = " + v);
+            var alt = dist[u] + distBetween(u,v);
+            log("alt = " + alt);
+            if (alt < dist[v]) {
+                dist[v] = alt;
+                previous[u].push(v);
+            }
+        }
+    }
+    log("\ninput = " + source);
+    log("output:");
+    
+    var ret = returnPopulatedMembers(previous)
+
+    log("# of nodes: " + count(ret));
+
+    
+    for (var item in ret) {
+        var ary = ret[item];
+        log(item + " = " + ary.join(", "));
+    }
+    
+    
+    
+    return ret; 
+}
+
+var count = function(obj) {
+    var i = 0;
+    for (item in obj) {
+        i++;
+    }
+    return i;
+}
+
+var dfs = function(graph, start) {
+    visited = {};
+    var path = [];
+    path.push(start);
+    var first =  graph[start];
+}
+
+
+var myfunc = function(source, target) {
+    log ("source = " + source + ", target = " + target);
+}
+
+
+var bfs = function(start,func) {
+    var fn = getRealFirstNeighbors([start]);
+    //log("# neighbors = " + fn['neighbors'].length);
+    for (var i = 0; i < fn['neighbors'].length; i++) {
+        var targetNode = fn['neighbors'][i];
+        var target = fn['neighbors'][i].data['id'];
+        if (visited[start + ">" + target] == 1) {
+            break;
+        }
+        log(start + " called " + target);
+        visited[start + ">" + target] = 1;
+//        func(start, target);
+        log("before: " + targetNode.data['hasbeencalled']);
+        targetNode.data['hasbeencalled'] = "true";
+        log("after: " + targetNode.data['hasbeencalled']);
+        bfs(target);
+    }
+}
+
+
+var simpleToComplexGraph = function(simpleGraph) {
+    
+}
+
+
+var returnPopulatedMembers = function(obj) {
+    var ret = {};
+    for (var item in obj) {
+        var ary = obj[item]
+        if (ary.length > 0) {
+            ret[item] = obj[item];
+        }
+    }
+    return ret;
+}
+
+var aShortestPath = function(start, end, previous) {
+    var s = [];
+    var u = end;
+    for (var item in previous) {
+        insertAtBeginning(u, s)
+        u = previous[u];
+    }
+    log("output length =  " + s.length);
+    return s;
+}
+
+var insertAtBeginning = function(item, ary) {
+    var ret = [];
+    ret.push(item);
+    for (var i = 0; i < ary.length; i++) {
+        ret.push(ary[i]);
+    }
+    return ret;
+}
+
+var distBetween = function(u,v) {
+    return 0;
+}
+
+var removeItemFromArray = function(q,u) {
+    var arr = [];
+    for (var i = 0; i < q.length; i++) {
+        if (q[i] == u) {
+            // do nothing
+        } else {
+            arr.push(q[i]);
+        }
+    }
+    return arr;
+}
+
+var getNodeWihSmallestDist = function(q, dist) {
+    var i;
+    for (i = 0; i < q.length; i++) {
+        var node = q[i];
+        log("i = " + i + ", node = " + node + ",  dist[node] = " + dist[node]);
+        if (dist[node] == 0) {
+            return node;
+        }
+    }
+    log("oops! no nodes have 0 dist, i = " + i);
+    return (q[0]);
 }
