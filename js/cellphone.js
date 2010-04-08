@@ -241,8 +241,8 @@ jQuery(document).ready(function() {
 		}
 	})
 	
-    var sp = floyd(getTestNet());
-    log ("sp = " + sp);
+//    var sp = floyd(getTestNet());
+//    log ("sp = " + sp);
     
     
 }); // end of jQuery document ready function
@@ -713,7 +713,12 @@ var visit = function(start) {
               if (visited[key] > 1) {
                   break;
               }
-
+              if (stats['callsMade'][start] == undefined) stats['callsMade'][start] = 0;
+              if (stats['callsReceived'][target] == undefined) stats['callsMade'][target] = 0;
+              ++stats['callsMade'][start];
+              ++stats['callsReceived'][target];
+              
+              
               ++stats['totalCallsMade'];
               ++stats['totalCallsReceived'];
 
@@ -840,13 +845,14 @@ var startPhoneTree = function() {
 }
 
 var fillStats = function() {
-    stats['totalPhonesCalled'] = count(visited);
-    //stats['totalPhonesNotCalled'] = (vis.nodes().length - count(visited));
     
     jQuery("#total_calls_made").html(stats['totalCallsMade']);
     jQuery("#total_calls_received").html(stats['totalCallsReceived']);
-    jQuery("#total_phones_called").html(stats['totalPhonesCalled']);
-    jQuery("#total_phones_not_called").html(stats['totalPhonesNotCalled']);
+    var phonesCalled = count(stats['callsReceived']);
+    jQuery("#total_phones_called").html(phonesCalled);
+    
+    jQuery("#total_phones_not_called").html(vis.nodes().length - phonesCalled);
+    
     
     
 }
@@ -857,7 +863,5 @@ var resetStats = function() {
         callsReceived: {},
         totalCallsMade: 0,
         totalCallsReceived: 0,
-        totalPhonesCalled: 0,
-        totalPhonesNotcalled: 0
     };    
 }
