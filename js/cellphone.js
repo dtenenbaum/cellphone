@@ -137,6 +137,80 @@ jQuery(document).ready(function() {
     };
     
     // init
+    
+jQuery('#' + div_id).cytoscape({
+  style: cytoscape.stylesheet()
+    .selector('node')
+      .css({
+        'content': 'data(name)',
+        'text-valign': 'center',
+        'color': 'white',
+        'text-outline-width': 2,
+        'text-outline-color': '#888'
+      })
+    .selector('edge')
+      .css({
+        'target-arrow-shape': 'triangle'
+      })
+    .selector(':selected')
+      .css({
+        'background-color': 'black',
+        'line-color': 'black',
+        'target-arrow-color': 'black',
+        'source-arrow-color': 'black'
+      })
+    .selector('.faded')
+      .css({
+        'opacity': 0.25,
+        'text-opacity': 0
+      }),
+  
+  elements: {
+    nodes: [
+      { data: { id: 'j', name: 'Jerry' } },
+      { data: { id: 'e', name: 'Elaine' } },
+      { data: { id: 'k', name: 'Kramer' } },
+      { data: { id: 'g', name: 'George' } }
+    ],
+    edges: [
+      { data: { source: 'j', target: 'e' } },
+      { data: { source: 'j', target: 'k' } },
+      { data: { source: 'j', target: 'g' } },
+      { data: { source: 'e', target: 'j' } },
+      { data: { source: 'e', target: 'k' } },
+      { data: { source: 'k', target: 'j' } },
+      { data: { source: 'k', target: 'e' } },
+      { data: { source: 'k', target: 'g' } },
+      { data: { source: 'g', target: 'j' } }
+    ]
+  },
+  
+  ready: function(){
+    window.cy = this;
+    
+    // giddy up...
+    
+    cy.elements().unselectify();
+    
+    cy.on('tap', 'node', function(e){
+      var node = e.cyTarget; 
+      var neighborhood = node.neighborhood().add(node);
+      
+      cy.elements().addClass('faded');
+      neighborhood.removeClass('faded');
+    });
+    
+    cy.on('tap', function(e){
+      if( e.cyTarget === cy ){
+        cy.elements().removeClass('faded');
+      }
+    });
+  }
+});
+
+
+
+    /*
     vis = new org.cytoscapeweb.Visualization(div_id, options);
     
     
@@ -148,7 +222,7 @@ jQuery(document).ready(function() {
     vis.addListener("mouseout", "nodes", clearLegend);
     vis.addListener("mouseout", "edges", clearLegend);
     vis.addListener("select", "nodes", setupDialogs);
-    
+    */
     
     jQuery("#politics").click(function(){
        log("politics!");
@@ -178,22 +252,25 @@ jQuery(document).ready(function() {
     
     jQuery.get('cellphone.graphml', function(data) {
         // draw
-       vis.draw({network: data, visualStyle: visual_style, nodeTooltipsEnabled: true, edgeTooltipsEnabled: true})
+       //vis.draw({network: data, visualStyle: visual_style, nodeTooltipsEnabled: true, edgeTooltipsEnabled: true})
        //vis.visualStyle(visual_style);
     });
     
+    /*
     vis.ready(function(){
         getCarriers();
         setupDialogs();
     }); // end of vis.ready function
-    
+    */
+
     jQuery("#knockout_selected_special").click(function(){
-        var selected = vis.selected("nodes");
+        //var selected = vis.selected("nodes");
         //log("num selected nodes: " + selected.length);
         setIncidentEdgesVisibility(selected, false);
     });
     
     jQuery("#restore_graph").click(function(){
+       /*
        vis.filter("edges", function(edge) {
            return true;
        });
@@ -201,13 +278,15 @@ jQuery(document).ready(function() {
        bypass = {nodes: {}, edges: {}};
        vis.visualStyleBypass(bypass);
        //todo - set hasbeencalled to false on all edges and nodes - or do we care?
+       */
     });
     
     jQuery("#reactivate_selected_special").click(function(){
+        /*
         var selected = vis.selected("nodes");
         //log("num selected nodes: " + selected.length);
         setIncidentEdgesVisibility(selected, true);
-        
+        */
     });
     
     jQuery('ul.sf-menu').superfish();
@@ -349,7 +428,7 @@ var getRealFirstNeighbors = function(nodeIds) {
     ret['rootNodes'] = nodeIds;
     
     
-    var fn = vis.firstNeighbors(nodeIds);
+    var fn/* = vis.firstNeighbors(nodeIds)*/;
     
     for (i = 0; i < fn.neighbors.length; i++) {
         var node = fn.neighbors[i];
@@ -391,7 +470,7 @@ var incident = function(node, edge) {
 
 var setAttributeVisibility = function(attribute, value, visible, attrPresent) {
     log("in setattribute visibility, params are: attribute = " + attribute + ", value = " + value + ", visible = " + visible + ", attrPresent = " + attrPresent);
-    var nodes = vis.nodes();
+    var nodes/* = vis.nodes()*/;
     var nodeList = [];
     
     if (value != undefined) {
@@ -424,6 +503,7 @@ var setAttributeVisibility = function(attribute, value, visible, attrPresent) {
 var setIncidentEdgesVisibility = function(nodes, visible) {
     for(i = 0; i < nodes.length; i++) {
         var node = nodes[i];
+        /*
         vis.filter("edges", function(edge){
             if (incident(node, edge)) {
                 if (edge.visible == visible) {
@@ -435,6 +515,7 @@ var setIncidentEdgesVisibility = function(nodes, visible) {
                 return (edge.visible); // leave it alone
             }
         });
+    */
     }
 }
 
