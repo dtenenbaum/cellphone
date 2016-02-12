@@ -1,0 +1,169 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html>
+    <head>
+        <title>Cell Phone Simulator</title>
+        <link rel="stylesheet" type="text/css" href="css/fg_menu.css" media="screen"/>
+        <link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.7/themes/ui-lightness/ui.all.css" media="screen"/>
+        <script type="text/javascript" src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js">
+        <script src="http://cytoscape.github.io/cytoscape.js/api/cytoscape.js-latest/cytoscape.min.js"></script>
+
+<script>
+  $(function() {
+    $("#optionMenu").menu();
+  });
+</script>
+</head>
+
+<body>
+  <ul id="optionMenu" class="sf-menu">
+  <li class="current">
+  <a>Options</a>
+     <ul>
+       <li> <a class="menuItem" id="knockout_selected_special">Knockout Selected</a></li>
+       <li> <a class="menuItem" id="reactivate_selected_special">Reactivate Selected</a></li>
+       <li><a class="menuItem" id="restore_graph">Reset Graph</a></li>
+       <li class="current"><a>Knock out by carrier&nbsp;&gt;</a>
+            <ul>
+              <li class="current"><a class="menuItem" id="knockout_carrier_att">AT&amp;T</a></li>
+              <li><a class="menuItem" id="knockout_carrier_cellularone">CellularOne</a></li>
+              <li><a class="menuItem" id="knockout_carrier_nextel">Nextel</a></li>
+              <li><a class="menuItem" id="knockout_carrier_sprint">Sprint</a></li>
+              <li><a class="menuItem" id="knockout_carrier_tmobile">T-Mobile</a></li>
+              <li><a class="menuItem" id="knockout_carrier_uscellular">US Cellular</a></li>
+              <li><a class="menuItem" id="knockout_carrier_verizon">Verizon Wireless</a></li>
+           </ul>
+      </li>
+      <li class="current">
+        <a>Reactivate by carrier &nbsp;&gt;</a>
+        <ul>
+            <li class="current"><a class="menuItem" id="reactivate_carrier_att">AT&amp;T</a></li>
+            <li><a class="menuItem" id="reactivate_carrier_cellularone">CellularOne</a></li>
+            <li><a class="menuItem" id="reactivate_carrier_nextel">Nextel</a></li>
+            <li><a class="menuItem" id="reactivate_carrier_sprint">Sprint</a></li>
+            <li><a class="menuItem" id="reactivate_carrier_tmobile">T-Mobile</a></li>
+            <li><a class="menuItem" id="reactivate_carrier_uscellular">US Cellular</a></li>
+            <li><a class="menuItem" id="reactivate_carrier_verizon">Verizon Wireless</a></li>
+         </ul>
+       </li>
+
+                                        <li class="current">
+                                                <a>Knock out by property&nbsp;&gt;</a>
+                                                <ul>
+
+                                                    <li class="current">
+                                                        <a>Phones With&nbsp;&gt;</a>
+                                                        <ul>
+                                                            <li><a class="menuItem" id="knockout_with_camera">Camera</a></li>
+                                                            <li><a class="menuItem" id="knockout_with_email">Email</a></li>
+                                                            <li><a class="menuItem" id="knockout_with_roaming">Roaming</a></li>
+                                                        </ul>
+                                                    </li>
+
+                                                    <li class="current">
+                                                        <a>Phones Without&nbsp;&gt;</a>
+                                                        <ul>
+                                                            <li><a class="menuItem" id="knockout_without_camera">Camera</a></li>
+                                                            <li><a class="menuItem" id="knockout_without_email">Email</a></li>
+                                                            <li><a class="menuItem" id="knockout_without_roaming">Roaming</a></li>
+                                                        </ul>
+                                                    </li>
+
+
+                                                </ul>
+                                        </li>
+
+
+                                        <li class="current">
+                                                <a>Reactivate by property&nbsp;&gt;</a>
+                                                <ul>
+
+                                                    <li class="current">
+                                                        <a>Phones With&nbsp;&gt;</a>
+                                                        <ul>
+                                                            <li><a class="menuItem" id="reactivate_with_camera">Camera</a></li>
+                                                            <li><a class="menuItem" id="reactivate_with_email">Email</a></li>
+                                                            <li><a class="menuItem" id="reactivate_with_roaming">Roaming</a></li>
+                                                        </ul>
+                                                    </li>
+
+                                                    <li class="current">
+                                                        <a>Phones Without&nbsp;&gt;</a>
+                                                        <ul>
+                                                            <li><a class="menuItem" id="reactivate_without_camera">Camera</a></li>
+                                                            <li><a class="menuItem" id="reactivate_without_email">Email</a></li>
+                                                            <li><a class="menuItem" id="reactivate_without_roaming">Roaming</a></li>
+                                                        </ul>
+                                                    </li>
+
+
+                                                </ul>
+                                        </li>
+
+                    <li>
+                        <a class="menuItem" id="phone_tree">Phone Tree</a>
+                    </li>
+                    <li>
+                        <a class="menuItem" id="shortest_path">Shortest Path(s)</a>
+                    </li>
+
+
+                                </ul>
+                        </li>
+                </ul>
+
+        <!------
+        <div id="cytoscapeweb">
+            Loading...
+        </div>
+        <br/>
+        <div id="event_display" bgcolor="#1475E3" height="150" class="legend">
+        </div>
+         -->
+
+        <div id="shortest_path_dialog">
+            <form id="sp_form">
+                <select id="sp_start_node" class="node_list"></select> Start Node<br/>
+                <select id="sp_end_node" class="node_list"></select> End Node<br/>
+                <select id="sp_delay">
+                    <option>500</option>
+                    <option>1000</option>
+                    <option>1500</option>
+                    <option>2000</option>
+                </select> Delay in ms.<br/>
+                <textarea id="sp_path_display" cols="40" rows="3"></textarea>
+            </form>
+        </div>
+
+        <div id="phone_tree_dialog">
+            <form id="pt_form">
+                <select id="pt_start_node" class="node_list"></select> Start Node<br/>
+                <select id="pt_delay">
+                    <option>0</option>
+                    <option>25</option>
+                    <option>500</option>
+                    <option>1000</option>
+                    <option>1500</option>
+                    <option>2000</option>
+                </select> Delay in ms.<br/>
+                <input type="checkbox" id="single_step_mode"/> Single-step mode?<br/>
+                <textarea id="pt_path_display" cols="40" rows="6"></textarea>
+            </form>
+        </div>
+
+        <div id="stats_dialog">
+            <table border="1">
+                <tr>
+                    <th>Calls Made</th>
+                    <th>Calls Received</th>
+                </tr>
+                <tr id="stats_table_body"></tr>
+            </table>
+            Total calls made: <span id="total_calls_made"></span><br/>
+            Total calls received: <span id="total_calls_received"></span><br/>
+            Total phones called: <span id="total_phones_called"></span><br/>
+            Total phones not called: <span id="total_phones_not_called"></span>
+        </div>
+
+    </body>
+
+</html>
